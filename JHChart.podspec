@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
  # s.license      = { :type => "MIT", :file => "File_license"}
   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" 
 }
- # s.source	 ={ :git => "https://github.com/China131/JHChart.git", :tag => "0.0.1"
+ # s.source	 ={ :git => "https://github.com/tjs101/JHChart.git", :tag => "0.0.2"
 }
 s.source_files ="JHChartDemo/JHChart *", "*{h,m}" 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
