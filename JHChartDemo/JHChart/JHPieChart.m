@@ -44,7 +44,6 @@
     
     if (self = [super init]) {
         _chartArcLength = 8.0;
-        _showDescripotion = YES;
     }
     
     return self;
@@ -77,15 +76,11 @@
             colors = k_COLOR_STOCK;
         }
         
-        if (!self.showDescripotion) {
-            return;
-        }
-        
         for (NSInteger i = 0; i<_descArr.count; i++) {
         
-            [self drawQuartWithColor:colors[i%colors.count] andBeginPoint:P_M(15+self.frame.size.width/2*(i%2), 20*(i/2  )+25+_chartArcLength*2) andContext:contex];
-            CGFloat present = [_valueArr[i] floatValue]/_allValueCount*100;
-            [self drawText:[NSString stringWithFormat:@"%@ 数量:% 3ld 占比:%.1f%c",_descArr[i],[_valueArr[i] integerValue],present,'%'] andContext:contex atPoint:P_M(30+self.frame.size.width/2*(i%2), 20*(i/2  )+25+_chartArcLength*2) WithColor:[UIColor blackColor] andTextFontSize:8];
+             [self drawQuartWithColor:colors[i%colors.count] andBeginPoint:P_M(15+self.frame.size.width/2*(i%2), 20*(i/2  )+25+_chartArcLength*2) andContext:contex];
+//            CGFloat present = [_valueArr[i] floatValue]/_allValueCount*100;
+            [self drawText:[NSString stringWithFormat:@"%@ 中标概率:%@%%",_descArr[i],_valueArr[i]] andContext:contex atPoint:P_M(30+self.frame.size.width/2*(i%2), 20*(i/2  )+25+_chartArcLength*2) WithColor:[UIColor blackColor] andTextFontSize:8];
         }
        
         
@@ -158,7 +153,7 @@
         _layersArr = [NSMutableArray array];
         
         CGFloat wid = self.frame.size.width-20;
-        self.chartOrigin = P_M(10 + wid / 2, 15 + wid / 2);
+        
         if (_descArr.count>0) {
             
             NSInteger i = _descArr.count/2 + _descArr.count%2;
@@ -206,10 +201,9 @@
             _showInfoView.hidden = YES;
             [_pieForeView addSubview:_showInfoView];
         }
-        __weak typeof(self) weakSelf = self;
         _pieForeView.select = ^(CGFloat angle,CGPoint p){
            
-            [weakSelf judgeWhitchOneIsNowAngle:angle andShowPoint:p];
+            [self judgeWhitchOneIsNowAngle:angle andShowPoint:p];
             
         };
         
@@ -223,30 +217,18 @@
 
 
 - (void)judgeWhitchOneIsNowAngle:(CGFloat )angel andShowPoint:(CGPoint)p{
-    weakSelf(weakSelf)
+    
     for (NSInteger i = 0; i<_countPreAngeleArr.count-1; i++) {
         
         if ([_countPreAngeleArr[i+1] floatValue]>=angel) {
             
-            /*        当前饼块中心点的角度         */
-            float NOW_ANGLE = [_countPreAngeleArr[i] floatValue]+[_angleArr[i] floatValue]/2.0f;
+         
             
-            /*        中心点         */
-            CGPoint centerPoint = P_M(self.frame.size.width / 2 + self.chartArcLength / 2*cos(NOW_ANGLE), self.chartOrigin.y + self.chartArcLength / 2 * sin(NOW_ANGLE));
-            
-            NSLog(@"%@",NSStringFromCGPoint(centerPoint));
-            
-            
-//            CALayer *lay = [CALayer layer];
-//            lay.frame = CGRectMake(0, 0, 2, 2);
-//            lay.backgroundColor = [UIColor blackColor].CGColor;
-//            lay.position = centerPoint;
-//            lay.cornerRadius = 1;
-//            lay.masksToBounds = YES;
-//            [self.layer addSublayer:lay];
-//
+            CGFloat NOW_ANGLE = [_countPreAngeleArr[i] floatValue]+[_angleArr[i] floatValue]/2;
             
             CGFloat standarSpa = _positionChangeLengthWhenClick;
+            
+
             
             CGFloat spa = sin(NOW_ANGLE)*standarSpa;
             
@@ -278,16 +260,16 @@
             }
              CGFloat present = [_valueArr[i] floatValue]/_allValueCount*100;
             [UIView animateWithDuration:0.3 animations:^{
-                if (weakself.saveIndex==i) {
+                if (_saveIndex==i) {
                     
                     if (saveItems.center.x==self.frame.size.width/2) {
-                        weakself.showInfoView.hidden = NO;
-                        itemsView.center = CGPointMake(weakself.frame.size.width/2+xSpa, 10+wid/2+spa);
-                        [weakself.showInfoView updateFrameTo:CGRectMake(p.x, p.y, weakself.showInfoView.frame.size.width, weakself.showInfoView.frame.size.height) andBGColor:colors[i%colors.count] andShowContentString:[NSString stringWithFormat:@"%@ 数量:% 3ld 占比:%.1f%c",weakself.descArr[i],[weakself.valueArr[i] integerValue],present,'%']];
+                        _showInfoView.hidden = NO;
+                        itemsView.center = CGPointMake(self.frame.size.width/2+xSpa, 10+wid/2+spa);
+                        [_showInfoView updateFrameTo:CGRectMake(p.x, p.y, _showInfoView.frame.size.width, _showInfoView.frame.size.height) andBGColor:colors[i%colors.count] andShowContentString:[NSString stringWithFormat:@"%@ 中标概率:%@%%",_descArr[i],_valueArr[i]]];
 //                        _showInfoView.frame = C   GRectMake(p.x, p.y, _showInfoView.frame.size.width, _showInfoView.frame.size.height);
                         
                     }else{
-                        weakself.showInfoView.hidden = YES;
+                        _showInfoView.hidden = YES;
                         saveItems.center = CGPointMake(self.frame.size.width/2, 10+wid/2);
                         
                     }
@@ -295,9 +277,9 @@
                 }else{
                     
                     saveItems.center = CGPointMake(self.frame.size.width/2, 10+wid/2);
-                    weakself.showInfoView.hidden = NO;
-                    [weakself.showInfoView updateFrameTo:CGRectMake(p.x, p.y, weakself.showInfoView.frame.size.width, weakself.showInfoView.frame.size.height) andBGColor:colors[i%colors.count] andShowContentString:[NSString stringWithFormat:@"%@ 数量:% 3ld 占比:%.1f%c",weakself.descArr[i],[weakself.valueArr[i] integerValue],present,'%']];
-                    itemsView.center = CGPointMake(weakself.frame.size.width/2+xSpa, 10+wid/2+spa);
+                    _showInfoView.hidden = NO;
+                    [_showInfoView updateFrameTo:CGRectMake(p.x, p.y, _showInfoView.frame.size.width, _showInfoView.frame.size.height) andBGColor:colors[i%colors.count] andShowContentString:[NSString stringWithFormat:@"%@ 中标概率:%@%%",_descArr[i],_valueArr[i]]];
+                    itemsView.center = CGPointMake(self.frame.size.width/2+xSpa, 10+wid/2+spa);
                     
                 }
             }];
